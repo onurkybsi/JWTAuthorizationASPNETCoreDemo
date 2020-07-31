@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using JWTAuthorizationASPNETCoreDemo.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,9 @@ namespace JWTAuthorizationASPNETCoreDemo.Services.Repositories
             _context = context;
         }
 
-        public IQueryable<AppUser> AppUsers => _context.AppUsers;
+        private IQueryable<AppUser> AppUsers => _context.AppUsers;
+
+        public IEnumerable<AppUser> GetAllUsers() => AppUsers.AsQueryable();
 
         public AppUser GetByUserName(string username) => AppUsers.SingleOrDefault(u => u.Username == username);
 

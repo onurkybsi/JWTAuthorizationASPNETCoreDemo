@@ -25,16 +25,14 @@ namespace JWTAuthorizationASPNETCoreDemo
         public void ConfigureServices(IServiceCollection services)
         {
             InitializeDb();
-            services.AddDbContext<AppUserDbContext>(options =>
-            options.UseMySQL("server=localhost;port=3306;user=root;password=Mysqlparola123;database=AppUserDb"));
+            services.AddDbContext<AppUserDbContext>(options => options.UseMySQL(Configuration["AppUserDbConnection"]));
+
             services.AddTransient<IAppUserRepo, AppUserRepo>();
 
             services.AddCors();
 
-            var appSettingsSection = Configuration;
             services.Configure<AppSettings>(Configuration);
 
-            var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(Configuration["SecretKey"]);
 
             services.AddAuthentication(x =>
@@ -50,6 +48,7 @@ namespace JWTAuthorizationASPNETCoreDemo
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateLifetime = true,
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };

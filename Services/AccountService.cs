@@ -28,9 +28,6 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
             string userSalt = user.HashedPassword.Split("saltis")[1];
             if (!Utilities.ValidateHash(login.Password, userSalt, userHash)) return null;
 
-            string newSalt = Utilities.CreateSalt();
-            string newHashedPassword = Utilities.CreateHash(login.Password, newSalt);
-
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var secretKey = Encoding.ASCII.GetBytes(_appSettings.SecretKey);
@@ -43,7 +40,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
                     new Claim(ClaimTypes.Name,user.Username)
                 }),
 
-                Expires = DateTime.UtcNow.AddMinutes(2),
+                Expires = DateTime.UtcNow.AddMinutes(0.5),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -52,7 +49,6 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
 
 
             user.Token = generatedToken;
-            user.HashedPassword = newHashedPassword;
             _repo.Update(user);
 
             return user;
