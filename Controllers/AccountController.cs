@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JWTAuthorizationASPNETCoreDemo.Controllers
 {
+    [Route("[controller]/[action]")]
+    [ApiController]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -14,7 +16,6 @@ namespace JWTAuthorizationASPNETCoreDemo.Controllers
         {
             _accountService = accountService;
         }
-
 
         [HttpPost]
         [AllowAnonymous]

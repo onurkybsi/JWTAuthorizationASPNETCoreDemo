@@ -15,12 +15,12 @@ namespace JWTAuthorizationASPNETCoreDemo.Services.Repositories
 
         public IQueryable<AppUser> AppUsers => _context.AppUsers;
 
-        public AppUser GetByHashedPassword(string hashedPassword) => AppUsers.SingleOrDefault(x => x.HashedPassword == hashedPassword);
+        public AppUser GetByUserName(string username) => AppUsers.SingleOrDefault(u => u.Username == username);
 
         public void Update(AppUser updatedUser)
         {
             var addedEntity = _context.Entry(updatedUser);
-            addedEntity.State = EntityState.Added;
+            addedEntity.State = EntityState.Modified;
             
             _context.SaveChanges();
         }

@@ -21,11 +21,15 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
 
         public AppUser Authenticate(LoginModel login)
         {
-            string hashedPassword = Utilities.HashedPassword(login.Password);
-
-            var user = _repo.GetByHashedPassword(hashedPassword);
-
+            var user = _repo.GetByUserName(login.Username);
             if (user is null) return null;
+
+            string userHash = user.HashedPassword.Split("saltis")[0];
+            string userSalt = user.HashedPassword.Split("saltis")[1];
+            if (!Utilities.ValidateHash(login.Password, userSalt, userHash)) return null;
+
+            string newSalt = Utilities.CreateSalt();
+            string newHashedPassword = Utilities.CreateHash(login.Password, newSalt);
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -40,7 +44,6 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
                 }),
 
                 Expires = DateTime.UtcNow.AddMinutes(2),
-
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -49,6 +52,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
 
 
             user.Token = generatedToken;
+            user.HashedPassword = newHashedPassword;
             _repo.Update(user);
 
             return user;

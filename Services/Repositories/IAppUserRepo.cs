@@ -4,7 +4,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Services.Repositories
 {
     public interface IAppUserRepo
     {
-        AppUser GetByHashedPassword(string hashedPassword);
+        AppUser GetByUserName(string username);
         void Update(AppUser updatedUser);
     }
 }

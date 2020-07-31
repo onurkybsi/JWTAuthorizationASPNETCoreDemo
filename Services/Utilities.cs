@@ -1,4 +1,3 @@
-using System;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
@@ -6,23 +5,30 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
 {
     public static class Utilities
     {
-        public static string HashedPassword(string password)
+        public static string CreateSalt()
         {
-            byte[] salt = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
+            byte[] randomBytes = new byte[128 / 8];
+            using (var generator = RandomNumberGenerator.Create())
             {
-                rng.GetBytes(salt);
+                generator.GetBytes(randomBytes);
             }
 
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: password,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA1,
-                iterationCount: 10000,
-                numBytesRequested: 256 / 8));
-
-            return hashed;
+            return System.Convert.ToBase64String(randomBytes);
         }
+
+        public static string CreateHash(string value, string salt)
+        {
+            var valueBytes = KeyDerivation.Pbkdf2(
+                                     password: value,
+                                     salt: System.Text.Encoding.UTF8.GetBytes(salt),
+                                     prf: KeyDerivationPrf.HMACSHA512,
+                                     iterationCount: 10000,
+                                     numBytesRequested: 256 / 8);
+
+            return System.Convert.ToBase64String(valueBytes) + "saltis" + salt;
+        }
+
+        public static bool ValidateHash(string value, string salt, string hash) => CreateHash(value, salt).Split("saltis")[0] == hash;
     }
 
     public class AppSettings

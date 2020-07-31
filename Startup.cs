@@ -1,9 +1,11 @@
 using System.Text;
 using JWTAuthorizationASPNETCoreDemo.Models;
 using JWTAuthorizationASPNETCoreDemo.Services;
+using JWTAuthorizationASPNETCoreDemo.Services.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,14 +25,17 @@ namespace JWTAuthorizationASPNETCoreDemo
         public void ConfigureServices(IServiceCollection services)
         {
             InitializeDb();
+            services.AddDbContext<AppUserDbContext>(options =>
+            options.UseMySQL("server=localhost;port=3306;user=root;password=Mysqlparola123;database=AppUserDb"));
+            services.AddTransient<IAppUserRepo, AppUserRepo>();
 
             services.AddCors();
 
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
+            var appSettingsSection = Configuration;
+            services.Configure<AppSettings>(Configuration);
 
             var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.SecretKey);
+            var key = Encoding.ASCII.GetBytes(Configuration["SecretKey"]);
 
             services.AddAuthentication(x =>
                 {
@@ -66,6 +71,12 @@ namespace JWTAuthorizationASPNETCoreDemo
 
             app.UseRouting();
 
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -80,10 +91,12 @@ namespace JWTAuthorizationASPNETCoreDemo
             {
                 if (context.Database.EnsureCreated())
                 {
+                    string salt = Utilities.CreateSalt();
+
                     var admin = new AppUser
                     {
                         Username = "onurkayabasi",
-                        HashedPassword = Utilities.HashedPassword("testparola123")
+                        HashedPassword = Utilities.CreateHash("testparola123", salt)
                     };
 
                     context.AppUsers.Add(admin);
