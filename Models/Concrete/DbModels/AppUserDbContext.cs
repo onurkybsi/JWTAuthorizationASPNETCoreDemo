@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace JWTAuthorizationASPNETCoreDemo.Models
+namespace JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels
 {
     public class AppUserDbContext : DbContext
     {

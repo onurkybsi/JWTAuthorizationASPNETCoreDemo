@@ -2,12 +2,15 @@ using System;
 using System.Security.Claims;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
-using JWTAuthorizationASPNETCoreDemo.Services.Repositories;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using JWTAuthorizationASPNETCoreDemo.Models;
+using JWTAuthorizationASPNETCoreDemo.Services.Abstract.Repositories;
+using JWTAuthorizationASPNETCoreDemo.Services.Abstract;
+using JWTAuthorizationASPNETCoreDemo.Models.Concrete;
+using JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels;
+using JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels;
 
-namespace JWTAuthorizationASPNETCoreDemo.Services
+namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete
 {
     public class AccountService : IAccountService
     {
@@ -19,15 +22,25 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
             _appSettings = appSettings.Value;
         }
 
-        public AppUser Authenticate(LoginModel login)
+        public IAppUser Authenticate(LoginModel login)
         {
-            var user = _repo.GetByUserName(login.Username);
+            var user = _repo.GetByUserEmail(login.Email);
             if (user is null) return null;
 
             string userHash = user.HashedPassword.Split("saltis")[0];
             string userSalt = user.HashedPassword.Split("saltis")[1];
             if (!Utilities.ValidateHash(login.Password, userSalt, userHash)) return null;
 
+            string createdToken = CreateToken(user);
+
+            user.Token = createdToken;
+            _repo.Update(user);
+
+            return user;
+        }
+
+        public string CreateToken(IAppUser user)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var secretKey = Encoding.ASCII.GetBytes(_appSettings.SecretKey);
@@ -37,7 +50,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("userId", user.Id.ToString()),
-                    new Claim(ClaimTypes.Name,user.Username)
+                    new Claim(ClaimTypes.Email,user.Email)
                 }),
 
                 Expires = DateTime.UtcNow.AddMinutes(0.5),
@@ -45,13 +58,9 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            string generatedToken = tokenHandler.WriteToken(token);
+            string createdToken = tokenHandler.WriteToken(token);
 
-
-            user.Token = generatedToken;
-            _repo.Update(user);
-
-            return user;
+            return createdToken;
         }
     }
 }

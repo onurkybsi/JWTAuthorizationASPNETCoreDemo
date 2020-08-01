@@ -1,0 +1,41 @@
+using System.Collections.Generic;
+using System.Linq;
+using JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels;
+using JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels;
+using JWTAuthorizationASPNETCoreDemo.Services.Abstract.Repositories;
+using Microsoft.EntityFrameworkCore;
+
+namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete.Repositories
+{
+    public class AppUserRepo : IAppUserRepo
+    {
+        private readonly AppUserDbContext _context;
+
+        public AppUserRepo(AppUserDbContext context)
+        {
+            _context = context;
+        }
+
+        private IQueryable<IAppUser> AppUsers => _context.AppUsers;
+
+        public IEnumerable<IAppUser> GetAllUsers() => AppUsers.AsQueryable();
+
+        public IAppUser GetByUserEmail(string email) => AppUsers.SingleOrDefault(u => u.Email == email);
+
+        public void Update(IAppUser user)
+        {
+            var updatedEntity = _context.Entry(user);
+            updatedEntity.State = EntityState.Modified;
+
+            _context.SaveChanges();
+        }
+
+        public void Add(IAppUser user)
+        {
+            var addedEntity = _context.Entry(user);
+            addedEntity.State = EntityState.Added;
+
+            _context.SaveChanges();
+        }
+    }
+}

@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
-namespace JWTAuthorizationASPNETCoreDemo.Services
+namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete
 {
     public static class Utilities
     {
@@ -26,6 +26,13 @@ namespace JWTAuthorizationASPNETCoreDemo.Services
                                      numBytesRequested: 256 / 8);
 
             return System.Convert.ToBase64String(valueBytes) + "saltis" + salt;
+        }
+
+        public static string CreateHash(string value)
+        {
+            string salt = CreateSalt();
+
+            return CreateHash(value, salt); 
         }
 
         public static bool ValidateHash(string value, string salt, string hash) => CreateHash(value, salt).Split("saltis")[0] == hash;

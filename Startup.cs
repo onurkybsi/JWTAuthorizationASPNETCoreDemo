@@ -1,7 +1,10 @@
 using System.Text;
-using JWTAuthorizationASPNETCoreDemo.Models;
-using JWTAuthorizationASPNETCoreDemo.Services;
-using JWTAuthorizationASPNETCoreDemo.Services.Repositories;
+using JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels;
+using JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels;
+using JWTAuthorizationASPNETCoreDemo.Services.Abstract;
+using JWTAuthorizationASPNETCoreDemo.Services.Abstract.Repositories;
+using JWTAuthorizationASPNETCoreDemo.Services.Concrete;
+using JWTAuthorizationASPNETCoreDemo.Services.Concrete.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +30,7 @@ namespace JWTAuthorizationASPNETCoreDemo
             InitializeDb();
             services.AddDbContext<AppUserDbContext>(options => options.UseMySQL(Configuration["AppUserDbConnection"]));
 
+            services.AddTransient<IAppUser, AppUser>();
             services.AddTransient<IAppUserRepo, AppUserRepo>();
 
             services.AddCors();
@@ -90,12 +94,10 @@ namespace JWTAuthorizationASPNETCoreDemo
             {
                 if (context.Database.EnsureCreated())
                 {
-                    string salt = Utilities.CreateSalt();
-
                     var admin = new AppUser
                     {
-                        Username = "onurkayabasi",
-                        HashedPassword = Utilities.CreateHash("testparola123", salt)
+                        Email = "onurbpm@outlook.com",
+                        HashedPassword = Utilities.CreateHash("testparola123")
                     };
 
                     context.AppUsers.Add(admin);
