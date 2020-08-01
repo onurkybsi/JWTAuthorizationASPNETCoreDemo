@@ -49,7 +49,8 @@ namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("userId", user.Id.ToString()),
-                    new Claim(ClaimTypes.Email,user.Email)
+                    new Claim(ClaimTypes.Email,user.Email),
+                    new Claim(ClaimTypes.Role, user.Role)
                 }),
 
                 Expires = DateTime.UtcNow.AddMinutes(0.5),

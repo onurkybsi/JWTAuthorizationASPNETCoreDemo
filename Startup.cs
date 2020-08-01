@@ -1,4 +1,5 @@
 using System.Text;
+using JWTAuthorizationASPNETCoreDemo.Models.Abstract;
 using JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels;
 using JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels;
 using JWTAuthorizationASPNETCoreDemo.Services.Abstract;
@@ -97,7 +98,8 @@ namespace JWTAuthorizationASPNETCoreDemo
                     var admin = new AppUser
                     {
                         Email = "onurbpm@outlook.com",
-                        HashedPassword = Utilities.CreateHash("testparola123")
+                        HashedPassword = Utilities.CreateHash("testparola123"),
+                        Role = Role.Admin
                     };
 
                     context.AppUsers.Add(admin);

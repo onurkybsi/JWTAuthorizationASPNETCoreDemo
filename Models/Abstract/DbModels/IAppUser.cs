@@ -5,6 +5,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels
         int Id { get; set; }
         string Email { get; set; }
         string HashedPassword { get; set; }
-        string Token { get; set; }       
+        string Role { get; set; }
+        string Token { get; set; }
     }
 }
