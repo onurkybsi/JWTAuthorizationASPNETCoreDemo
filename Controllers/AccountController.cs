@@ -37,7 +37,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Controllers
         [HttpGet]
         public IActionResult GetAllUsers()
         {
-            return Ok(_repo.GetAllUsers());
+            return Ok(_repo.GetListByFilter(null));
         }
 
         [HttpPost]
@@ -53,7 +53,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Controllers
 
             _repo.Add(addedUser);
 
-            return Ok(_repo.GetByUserEmail(newUser.Email));
+            return Ok(_repo.GetByFilter(u => u.Email == newUser.Email));
         }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using JWTAuthorizationASPNETCoreDemo.Services.Abstract.Repositories;
 using JWTAuthorizationASPNETCoreDemo.Services.Abstract;
 using JWTAuthorizationASPNETCoreDemo.Models.Concrete;
-using JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels;
 using JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels;
 
 namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete
@@ -24,7 +23,7 @@ namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete
 
         public IAppUser Authenticate(LoginModel login)
         {
-            var user = _repo.GetByUserEmail(login.Email);
+            var user = _repo.GetByFilter(u => u.Email == login.Email);
             if (user is null) return null;
 
             string userHash = user.HashedPassword.Split("saltis")[0];

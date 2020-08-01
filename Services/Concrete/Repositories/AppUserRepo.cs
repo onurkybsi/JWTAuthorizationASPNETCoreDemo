@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using JWTAuthorizationASPNETCoreDemo.Models.Abstract.DbModels;
 using JWTAuthorizationASPNETCoreDemo.Models.Concrete.DbModels;
 using JWTAuthorizationASPNETCoreDemo.Services.Abstract.Repositories;
@@ -18,9 +20,11 @@ namespace JWTAuthorizationASPNETCoreDemo.Services.Concrete.Repositories
 
         private IQueryable<IAppUser> AppUsers => _context.AppUsers;
 
-        public IEnumerable<IAppUser> GetAllUsers() => AppUsers.AsQueryable();
+        public List<IAppUser> GetListByFilter(Expression<Func<IAppUser, bool>> filter)
+            => filter == null ? AppUsers.ToList() : AppUsers.Where(filter).ToList();
 
-        public IAppUser GetByUserEmail(string email) => AppUsers.SingleOrDefault(u => u.Email == email);
+        public IAppUser GetByFilter(Expression<Func<IAppUser, bool>> filter)
+            => filter == null ? null : AppUsers.FirstOrDefault(filter);
 
         public void Update(IAppUser user)
         {
